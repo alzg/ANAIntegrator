@@ -30,6 +30,7 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class Application {
 
+
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     @Autowired
     public CustomProperties cp;
