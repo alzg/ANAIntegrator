@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -38,7 +37,7 @@ public class ScheduledTasks {
     private final ANARestAPIService anaRestAPIService;
 
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
 
     @Value("${endpoint}")
     private String endpoint;
@@ -108,12 +107,12 @@ public class ScheduledTasks {
         CompletableFuture.allOf(page1).join();
 
         //ResponseEntity<String> respEntity = restTemplate.postForEntity(endpoint, new HttpEntity<String>(input,
-         //       anaRestAPIService.buildHttpHeaders()), String.class);
+        //       anaRestAPIService.buildHttpHeaders()), String.class);
 
-        System.out.println("Request:");
+        log.info("Request:");
         Utils.formatJsonString(input);
 
-        System.out.println("Response:");
+        log.info("Response:");
         Utils.formatJsonString(page1.get().getBody());
 
         Utils.Response response = null;
@@ -122,11 +121,15 @@ public class ScheduledTasks {
         } catch (ANAIntegratorException e) {
             e.printStackTrace();
         }
-
-        System.out.println("record: " + response.getRecord() + "\r\n:" + response.getResponseCode());
+        if (response != null)
+            log.info("record: " + response.getRecord() + "\r\n:" + response.getResponseCode());
 
         try {
-            RatesForwardFRAIndex data = mapper.readValue(response.getRecord(), RatesForwardFRAIndex.class);
+            RatesForwardFRAIndex data;
+            if (response != null) {
+                data = mapper.readValue(response.getRecord(), RatesForwardFRAIndex.class);
+                log.info("Serialize OK");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -3,6 +3,8 @@ package com.comarch.ana.util;
 import com.comarch.ana.exceptions.ANAIntegratorException;
 import com.comarch.ana.exceptions.ANAIntegratorIOException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,38 +14,43 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Utils {
+    private static final Logger log = LoggerFactory.getLogger(Utils.class);
+
     public static void formatJsonString(String json) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             Object jsonObject = mapper.readValue(json, Object.class);
             String prettyJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
-            System.out.println(prettyJson);
+            log.info(prettyJson);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static Response parseResponse(String jsonResponse) throws ANAIntegratorException {
-        Pattern pattern = Pattern.compile("(.*\"record\".*)(\\{.*\"Header\".*)(,.*\"responseCode\"[^\\d])(.*)(\\})", Pattern.DOTALL);
+        Pattern pattern = Pattern.compile("(.*\"record\".*)(\\{.*\"Header\".*)(,.*\"responseCode\"[^\\d])(.*)(})",
+                Pattern.DOTALL);
         Matcher matcher = pattern.matcher(jsonResponse);
-        matcher.find();
-        String responseCode;
-        String record;
-        try {
-            record = matcher.group(2);
-            responseCode = matcher.group(4);
-        } catch (IllegalStateException | IndexOutOfBoundsException e) {
-            throw new ANAIntegratorIOException(
-                    "Error parsing response: "
-                            + jsonResponse.substring(1, 256), e);
-        }
-        int responseCodeInt;
-        try {
-            responseCodeInt = Integer.parseInt(responseCode.trim());
-        } catch (NumberFormatException e) {
-            throw new ANAIntegratorIOException("Error parsing responseCode", e);
-        }
-        return new Response(record, responseCodeInt);
+        if (matcher.find()) {
+            String responseCode;
+            String record;
+            try {
+                record = matcher.group(2);
+                responseCode = matcher.group(4);
+            } catch (IllegalStateException | IndexOutOfBoundsException e) {
+                throw new ANAIntegratorIOException(
+                        "Error parsing response: "
+                                + jsonResponse.substring(1, 256), e);
+            }
+            int responseCodeInt;
+            try {
+                responseCodeInt = Integer.parseInt(responseCode.trim());
+            } catch (NumberFormatException e) {
+                throw new ANAIntegratorIOException("Error parsing responseCode", e);
+            }
+            return new Response(record, responseCodeInt);
+        } else
+            return null;
     }
 
     public <T> CompletableFuture<List<T>> allOf(List<CompletableFuture<T>> futuresList) {

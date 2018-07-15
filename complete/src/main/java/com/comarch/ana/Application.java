@@ -4,14 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,10 +16,8 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.concurrent.Executor;
 
 @SpringBootApplication
@@ -53,15 +48,15 @@ public class Application {
     @Autowired
     @Primary
     DataSourceTransactionManager tm1(@Qualifier("otc") DataSource datasource) {
-        DataSourceTransactionManager txm  = new DataSourceTransactionManager(datasource);
-        return txm;
+       // DataSourceTransactionManager txm  = new DataSourceTransactionManager(datasource);
+        return new DataSourceTransactionManager(datasource);
     }
 
     @Bean(name="tm2")
     @Autowired
     DataSourceTransactionManager tm2(@Qualifier ("gmk") DataSource datasource) {
-        DataSourceTransactionManager txm  = new DataSourceTransactionManager(datasource);
-        return txm;
+        //DataSourceTransactionManager txm  = new DataSourceTransactionManager(datasource);
+        return new DataSourceTransactionManager(datasource);
     }
     @Bean
     public JdbcTemplate jdbcTemplateOtc(DataSource dataSource)
