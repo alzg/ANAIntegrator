@@ -26,6 +26,7 @@ import javax.sql.DataSource;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @ConfigurationProperties
@@ -35,8 +36,10 @@ public class ScheduledTasks {
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private final ANARestAPIService anaRestAPIService;
+
     @Autowired
     CustomerRepository customerRepository;
+
     @Value("${endpoint}")
     private String endpoint;
 
@@ -99,21 +102,23 @@ public class ScheduledTasks {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        RestTemplate restTemplate = new RestTemplate();
-        System.out.println("TEST:" + endpoint);
 
-        ResponseEntity<String> respEntity = restTemplate.postForEntity(endpoint, new HttpEntity<String>(input,
-                anaRestAPIService.buildHttpHeaders()), String.class);
+        CompletableFuture<ResponseEntity<String>> page1 = anaRestAPIService.getISIN(input);
+        RestTemplate restTemplate = new RestTemplate();
+        CompletableFuture.allOf(page1).join();
+
+        //ResponseEntity<String> respEntity = restTemplate.postForEntity(endpoint, new HttpEntity<String>(input,
+         //       anaRestAPIService.buildHttpHeaders()), String.class);
 
         System.out.println("Request:");
         Utils.formatJsonString(input);
 
         System.out.println("Response:");
-        Utils.formatJsonString(respEntity.getBody());
+        Utils.formatJsonString(page1.get().getBody());
 
         Utils.Response response = null;
         try {
-            response = Utils.parseResponse(respEntity.getBody());
+            response = Utils.parseResponse(page1.get().getBody());
         } catch (ANAIntegratorException e) {
             e.printStackTrace();
         }

@@ -2,6 +2,7 @@ package com.comarch.ana;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -23,9 +24,15 @@ import java.util.concurrent.CompletableFuture;
 public class ANARestAPIService {
 
     private static final Logger log = LoggerFactory.getLogger(ANARestAPIService.class);
+
+    @Autowired
+    public CustomProperties cp;
+
     @Value("#{${endpoint.headers}}")
-    private static Map<String, List<String>> headersParams;
+    private Map<String, List<String>> headersParams;
+
     private final RestTemplate restTemplate;
+
     @Value("${endpoint}")
     private String endpoint;
 
@@ -33,8 +40,8 @@ public class ANARestAPIService {
         this.restTemplate = restTemplateBuilder.build();
     }
 
-    public static HttpHeaders buildHttpHeaders() {
-        final HttpHeaders headers = new HttpHeaders();
+    public HttpHeaders buildHttpHeaders() {
+        HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.putAll(headersParams);

@@ -32,6 +32,7 @@ import java.util.concurrent.Executor;
 public class Application {
 
     private static final Logger log = LoggerFactory.getLogger(Application.class);
+
     @Autowired
     public CustomProperties cp;
 
@@ -78,18 +79,6 @@ public class Application {
         SpringApplication.run(Application.class);
     }
 
- /*   @Bean
-    DataSource dataSource() throws SQLException {
-
-   /*     OracleDataSource dataSource;
-        dataSource.setUser(username);
-        dataSource.setPassword(password);
-        dataSource.setURL(url);
-        dataSource.setImplicitCachingEnabled(true);
-        dataSource.setFastConnectionFailoverEnabled(true);
-        return dataSource;
-    }
-*/
     @Bean
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
