@@ -28,8 +28,9 @@ import java.util.concurrent.Executor;
 @SpringBootApplication
 @EnableScheduling
 @EnableAsync
+
 public class Application {
-    
+
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     @Autowired
     public CustomProperties cp;
