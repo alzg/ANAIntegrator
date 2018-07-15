@@ -1,8 +1,5 @@
 package com.comarch.ana;
 
-import java.util.Arrays;
-import java.util.stream.StreamSupport;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -13,8 +10,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.stream.StreamSupport;
+
 @Component
-public class PropertyLogger  {
+public class PropertyLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertyLogger.class);
 
@@ -29,8 +29,9 @@ public class PropertyLogger  {
                 .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
                 .flatMap(Arrays::stream)
                 .distinct()
-                .filter(prop -> !(prop.contains("credentials") || prop.contains("password")))
-                .forEach(prop -> LOGGER.info("{}: {}", prop, env.getProperty(prop)));
+                // .filter(prop -> !(prop.contains("credentials") || prop.contains("password")))
+                .forEach(prop -> LOGGER.info("{}: {}", prop, (prop.contains("credentials") || prop.contains
+                        ("password")) ? "*************" : env.getProperty(prop)));
         LOGGER.info("===========================================");
     }
 }
